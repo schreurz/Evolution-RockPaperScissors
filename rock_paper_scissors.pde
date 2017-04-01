@@ -1,20 +1,27 @@
-int DIM=32; //exponent of 2
-float MY=0.01; // Mutation Rate
-int GAMES = 100; // Games played per draw() calls
-boolean WELL_MIXED = true; // True for well-mixed, false for spacial
-boolean RANDOM_PLAYER = false;
-float RESET = -1;  // Number of draw() calls before reset. -1 if no reset
-// Number of games played before reset will be GAMES * RESET
-boolean RESET_AT_END = true;
 
-// RED = ROCK
-// GREEN = PAPER
-// BLUE = SCISSORS
-// A lot of red -> green strives
-// A lot of green -> blue strives
-// A lot of blue -> red strives
-// Shoult oscillate from red->green->blue->red for well mixed
-// For grouping red takes blue, blue takes green, green takes red
+/*
+ Rock paper scissors agent based survival and evolution visualization
+
+ RED = ROCK
+ GREEN = PAPER
+ BLUE = SCISSORS
+ A lot of red -> green strives
+ A lot of green -> blue strives
+ A lot of blue -> red strives
+ Shoult oscillate from red->green->blue->red for well mixed
+ For grouping red takes blue, blue takes green, green takes red
+*/
+
+
+
+
+int GAMES = 100; // Games played per draw() calls
+boolean well_mixed = true; // True for well-mixed, false for spacial
+String DATA_DIR = "data/";  // Directory to save data to
+
+int dim=16; //exponent of 2
+float my=0.0; // Mutation Rate
+boolean random_player = false;
 
                         // R   P   S
 float[][] payoffMatrix={{1.0, 0.0, 2.0}, // R
@@ -29,59 +36,55 @@ Agent[][] area;
 // Org counter for no mutations
 int[] org_count = new int[4];
 
-
-// Place agents into the area
-int repeat = 0;
-int state = 0;
-PrintWriter output;
 void setup()
 {
   size(640, 640);
   resetEverything();
 }
 
+int state = 0;
+void setState()
+{
+  random_player = boolean(state & 1);
+  well_mixed = boolean((state >> 1) & 1);
+  state = (state+1)%4;
+}
+
+int repeat = 0;
+PrintWriter output;
 void resetEverything()
 {
   if (repeat == 30)
   {
     exit();
   }
-  if (state%2 == 1)
+  setState();
+  
+  if (my == 0.0)
+  // only count orgs when no evolution
   {
-    RANDOM_PLAYER = true;
+    for(int i=0;i<4;i++)
+    {
+      org_count[i] = 0;
+    }
   }
-  else 
+  
+  area=new Agent[dim][dim];
+  for (int i=0; i<dim; i++)
   {
-    RANDOM_PLAYER = false;
-  }
-  if (state >= 2)
-  {
-    WELL_MIXED = true;
-  }
-  else 
-  {
-    WELL_MIXED = false;
-  }
-  for(int i=0;i<4;i++)
-  {
-    org_count[i] = 0;
-  }
-  area=new Agent[DIM][DIM];
-  for (int i=0; i<DIM; i++)
-  {
-    for (int j=0; j<DIM; j++)
+    for (int j=0; j<dim; j++)
     {
       area[i][j]=new Agent(null, i, j); // Null because no parent
       area[i][j].show();
     }
   }
 
-  if (MY == 0.0)
+  if (my == 0.0)
   {
     output = createWriter("data_"+str(repeat)+".csv");
     output.println("R,P,S,M,Size,Well Mixed,Random");
   }
-  //output.println(",,,,"+str(DIM)+','+str(WELL_MIXED)+','+str(RANDOM_PLAYER));
+  //output.println(",,,,"+str(dim)+','+str(well_mixed)+','+str(random_player));
 }
 
 class Agent {
@@ -107,17 +110,16 @@ class Agent {
       type = tmp;
 
 
-      if (RANDOM_PLAYER)
+      if (random_player)
       {
         // Make 1/4th of the agents random players
         if ((int)random(4)==0)
         {
-          tmp = 3;
+          type = 3;
           genome[0]=genome[1]=genome[2]=1.0/3.0;
-          type = tmp;
         }
       }
-      if (MY == 0.0)
+      if (my == 0.0)
       {
         org_count[type]++;
       }
@@ -129,7 +131,7 @@ class Agent {
       boolean didIChange=false;
       for (int i=0; i<3; i++)
       {
-        if (random(0.0, 1.0) < MY)
+        if (random(0.0, 1.0) < my)
         {
           genome[i]=random(0.0, 1.0);
           didIChange=true;
@@ -179,7 +181,7 @@ int count = 0;
 void draw()
 {
   count++;
-  if (MY == 0.0 && count == 20)
+  if (my == 0.0 && count == 20)
   {
     //println(Integer.toString(org_count[0])+' '+Integer.toString(org_count[1])+' '+Integer.toString(org_count[2])+' '+Integer.toString(org_count[3]));
     count = 0;
@@ -195,44 +197,43 @@ void draw()
       if (org_count[i] == 0)
         nrZ++;
     }
-    output.print(','+str(DIM)+','+str(WELL_MIXED)+','+str(RANDOM_PLAYER));
+    output.print(','+str(dim)+','+str(well_mixed)+','+str(random_player));
     output.print("\n");
     output.flush();
     if(nrZ == 3)
     {
       output.close();
       repeat++;
-      state = (state+1)%4;
       resetEverything();
       //saveFrame("frame_#####.png");
     }
   }
   for (int i=0; i<GAMES; i++) {
-    int x=(int)random(DIM);
-    int y=(int)random(DIM);
+    int x=(int)random(dim);
+    int y=(int)random(dim);
     int x2, y2;
     int dir=(int)random(4);
 
-    // Choose who to play against based on WELL_MIXED
-    if (WELL_MIXED)
+    // Choose who to play against based on well_mixed
+    if (well_mixed)
     {
-      x2=(int)random(DIM);
-      y2=(int)random(DIM);
+      x2=(int)random(dim);
+      y2=(int)random(dim);
 
       // check to make sure x != x2 and y != y2
       if (x==x2)
       {
-        x2 = (x2+1)%DIM;
+        x2 = (x2+1)%dim;
       }
       if (y==y2)
       {
-        y2 = (y2+1)%DIM;
+        y2 = (y2+1)%dim;
       }
     }
     else
     {
-      x2 = (x+xm[dir])&(DIM-1);
-      y2 = (y+ym[dir])&(DIM-1);
+      x2 = (x+xm[dir])&(dim-1);
+      y2 = (y+ym[dir])&(dim-1);
     }
 
     // Play games
