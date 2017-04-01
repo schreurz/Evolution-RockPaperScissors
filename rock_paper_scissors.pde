@@ -21,9 +21,9 @@ String DATA_DIR = "data/"+month()+'-'+day()+'-'+year()+'_'+hour()+':'+minute()+'
 int REPEAT_MAX = 500;
 
 boolean well_mixed = true; // True for well-mixed, false for spacial
+boolean random_player = false;
 int dim=16; //exponent of 2
 float my=0.0; // Mutation Rate
-boolean random_player = false;
 
                         // R   P   S
 float[][] payoffMatrix={{1.0, 0.0, 2.0}, // R
@@ -60,11 +60,11 @@ void resetEverything()
   {
     exit();
   }
-  setState();
   
   if (my == 0.0)
   // only count orgs when no evolution
   {
+    setState();
     for(int i=0;i<4;i++)
     {
       org_count[i] = 0;
@@ -181,7 +181,7 @@ class Agent {
 int count = 0; // variable for knowing when to update the .csv file
 void draw()
 {
-  if (my == 0.0 && !boolean((count%DATA_UPDATE_FREQUENCY)))
+  if (my == 0.0 && count == 0)
   {
     
     //println(Integer.toString(org_count[0])+' '+Integer.toString(org_count[1])+' '+Integer.toString(org_count[2])+' '+Integer.toString(org_count[3]));
