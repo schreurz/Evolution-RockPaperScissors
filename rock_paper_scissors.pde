@@ -15,10 +15,11 @@
 
 
 
-int GAMES = 100; // Games played per draw() calls
-boolean well_mixed = true; // True for well-mixed, false for spacial
-String DATA_DIR = "data/";  // Directory to save data to
+int GAMES_PER_DRAW = 100; // Games played per draw() calls
+int DATA_UPDATE_FREQUENCY = 20; // Draw() calls per .csv file update
+String DATA_DIR = "data/"+month()+'-'+day()+'-'+year()+'_'+hour()+':'+minute()+':'+second()+'/';  // Directory to save data to
 
+boolean well_mixed = true; // True for well-mixed, false for spacial
 int dim=16; //exponent of 2
 float my=0.0; // Mutation Rate
 boolean random_player = false;
@@ -81,7 +82,7 @@ void resetEverything()
 
   if (my == 0.0)
   {
-    output = createWriter("data_"+str(repeat)+".csv");
+    output = createWriter(DATA_DIR+"data_"+str(repeat)+".csv");
     output.println("R,P,S,M,Size,Well Mixed,Random");
   }
   //output.println(",,,,"+str(dim)+','+str(well_mixed)+','+str(random_player));
@@ -176,25 +177,23 @@ class Agent {
   }
 };
 
-// What is called every update
-int count = 0;
+int count = 0; // variable for knowing when to update the .csv file
 void draw()
 {
-  count++;
-  if (my == 0.0 && count == 20)
+  if (my == 0.0 && !boolean((count%DATA_UPDATE_FREQUENCY)))
   {
+    
     //println(Integer.toString(org_count[0])+' '+Integer.toString(org_count[1])+' '+Integer.toString(org_count[2])+' '+Integer.toString(org_count[3]));
-    count = 0;
-    int nrZ = 0;
+    
+    int nrZ = 0; // number of extinct species (always includes random strategy)
     for(int i=0;i<4;i++)
     {
-      //output.print(str(org_count[i]));
-      if(i!=0)
+      if(i!=0) // don't print comma on initial loop
       {
         output.print(",");
       }
       output.print(str(org_count[i]));
-      if (org_count[i] == 0)
+      if (org_count[i] == 0) // organism is extinct
         nrZ++;
     }
     output.print(','+str(dim)+','+str(well_mixed)+','+str(random_player));
@@ -208,11 +207,12 @@ void draw()
       //saveFrame("frame_#####.png");
     }
   }
-  for (int i=0; i<GAMES; i++) {
+  count = (count+1)%DATA_UPDATE_FREQUENCY;
+  
+  for (int i=0; i<GAMES_PER_DRAW; i++) {
     int x=(int)random(dim);
     int y=(int)random(dim);
     int x2, y2;
-    int dir=(int)random(4);
 
     // Choose who to play against based on well_mixed
     if (well_mixed)
@@ -223,15 +223,16 @@ void draw()
       // check to make sure x != x2 and y != y2
       if (x==x2)
       {
-        x2 = (x2+1)%dim;
+        x2 = (x2+1)&(dim-1);
       }
       if (y==y2)
       {
-        y2 = (y2+1)%dim;
+        y2 = (y2+1)&(dim-1);
       }
     }
     else
     {
+      int dir=(int)random(4);
       x2 = (x+xm[dir])&(dim-1);
       y2 = (y+ym[dir])&(dim-1);
     }
