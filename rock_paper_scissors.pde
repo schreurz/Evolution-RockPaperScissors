@@ -18,6 +18,7 @@
 int GAMES_PER_DRAW = 100; // Games played per draw() calls
 int DATA_UPDATE_FREQUENCY = 20; // Draw() calls per .csv file update
 String DATA_DIR = "data/"+month()+'-'+day()+'-'+year()+'_'+hour()+':'+minute()+':'+second()+'/';  // Directory to save data to
+int REPEAT_MAX = 500;
 
 boolean well_mixed = true; // True for well-mixed, false for spacial
 int dim=16; //exponent of 2
@@ -55,7 +56,7 @@ int repeat = 0;
 PrintWriter output;
 void resetEverything()
 {
-  if (repeat == 30)
+  if (repeat == REPEAT_MAX)
   {
     exit();
   }
