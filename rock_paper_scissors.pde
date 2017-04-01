@@ -13,12 +13,10 @@
 */
 
 
-
-
-int GAMES_PER_DRAW = 100; // Games played per draw() calls
-int DATA_UPDATE_FREQUENCY = 20; // Draw() calls per .csv file update
+int GAMES_PER_DRAW = 10000; // Games played per draw() calls
+int DATA_UPDATE_FREQUENCY = 2; // Draw() calls per .csv file update
 String DATA_DIR = "data/"+month()+'-'+day()+'-'+year()+'_'+hour()+':'+minute()+':'+second()+'/';  // Directory to save data to
-int REPEAT_MAX = 500;
+int REPEAT_MAX = 1000;
 
 boolean well_mixed = true; // True for well-mixed, false for spacial
 boolean random_player = false;
@@ -83,6 +81,11 @@ void resetEverything()
 
   if (my == 0.0)
   {
+    if ((org_count[0] + org_count[1] + org_count[2] + org_count[3] - (dim * dim)) != 0)
+    {
+      println("Incorrect org count\n");
+      exit();
+    }
     output = createWriter(DATA_DIR+"data_"+str(repeat)+".csv");
     output.println("R,P,S,M,Size,Well Mixed,Random");
   }
