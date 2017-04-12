@@ -8,3 +8,7 @@ Rock paper scissors is classic example within game theory. Here we find two diff
 To add another level to this experiment we will allow for actual mutations to strategies, and allow for actual evolution to happen new strategies are inherited from parents. 
 
 To visualize the game, we display a pixelated screen where the pixel colors represent the strategy of a player. This will allow users to get an intuitive understanding, as we are visualizing evolution in action. 
+
+## Sample Data
+
+In the data file you will find sample data which was outputted during a run of the processing program. The data is then processed with Python and the pandas library. The 'data_parsing.ipnb' is an example of how data can be collected from the data files.
