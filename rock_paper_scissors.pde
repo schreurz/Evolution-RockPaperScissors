@@ -13,15 +13,25 @@
 */
 
 
-int GAMES_PER_DRAW = 10000; // Games played per draw() calls
-int DATA_UPDATE_FREQUENCY = 2; // Draw() calls per .csv file update
-String DATA_DIR = "data/"+month()+'-'+day()+'-'+year()+'_'+hour()+':'+minute()+':'+second()+'/';  // Directory to save data to
-int REPEAT_MAX = 1000;
+int GAMES_PER_DRAW = 100;     // Games played per draw() calls
+int DATA_UPDATE_FREQUENCY = 1000000;   // Draw() calls per .csv file update
+          // Number of games per data update = GAMES_PER_DRAW * DATA_UPDATE_FREQUENCY
+boolean saveFrame = false;
 
-boolean well_mixed = true; // True for well-mixed, false for spacial
-boolean random_player = false;
-int dim=16; //exponent of 2
-float my=0.0; // Mutation Rate
+int dim=64;         //exponent of 2
+float my=0.001;         // Mutation Rate
+
+int REPEAT_MAX = 200;      // When getting data; how many samples to obtain
+
+// When not getting data; i.e. setState() is not ran
+boolean well_mixed = false;     // True for well-mixed, false for spacial
+boolean random_player = true;    // A random strategy (1/3,1/3,1/3) is implemented
+
+// Directory for data to be saved to (directory must be pre made on windows)
+String DATA_DIR = "data/"+month()+'-'+day()+'-'+year()+'_'+hour()+':'+minute()+':'+second()+'/';  // Directory to save data to
+//String DATA_DIR = "data/";
+
+
 
                         // R   P   S
 float[][] payoffMatrix={{1.0, 0.0, 2.0}, // R
@@ -62,7 +72,7 @@ void resetEverything()
   if (my == 0.0)
   // only count orgs when no evolution
   {
-    setState();
+    //setState();
     for(int i=0;i<4;i++)
     {
       org_count[i] = 0;
@@ -88,6 +98,17 @@ void resetEverything()
     }
     output = createWriter(DATA_DIR+"data_"+str(repeat)+".csv");
     output.println("R,P,S,M,Size,Well Mixed,Random");
+    for(int i=0;i<4;i++)
+    {
+      if(i!=0) // don't print comma on initial loop
+      {
+        output.print(",");
+      }
+      output.print(str(org_count[i]));
+    }
+    output.print(','+str(dim)+','+str(well_mixed)+','+str(random_player));
+    output.print("\n");
+    output.flush();
   }
   //output.println(",,,,"+str(dim)+','+str(well_mixed)+','+str(random_player));
 }
@@ -184,6 +205,10 @@ class Agent {
 int count = 0; // variable for knowing when to update the .csv file
 void draw()
 {
+  
+  if (count == 0 && saveFrame)
+    saveFrame(DATA_DIR+"frame_#####.png");
+    
   if (my == 0.0 && count == 0)
   {
     
