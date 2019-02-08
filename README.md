@@ -1,4 +1,4 @@
-# RockPaperScissors
+# Evolution-RockPaperScissors
 ## Abstract
 
 The study of game theory is about the evaluation of choices and to assess possible outcomes. Studying the advantages and disadvantages of different options in a hypothetical situation, is a useful undertaking, since many real world situations can be expressed within game theory. The gained knowledge can often be applied to other situations. 
